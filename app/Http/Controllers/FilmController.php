@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Film;
+use App\Http\Requests\Film as FilmRequest;
 
 class FilmController extends Controller
 {
@@ -13,7 +15,9 @@ class FilmController extends Controller
      */
     public function index()
     {
-        //
+        $films = Film::all();
+        //$films = Film::paginate(5);
+        return view('index',compact('films'));
     }
 
     /**
@@ -23,7 +27,7 @@ class FilmController extends Controller
      */
     public function create()
     {
-        //
+        return view('create');
     }
 
     /**
@@ -32,9 +36,10 @@ class FilmController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(FilmRequest $filmRequest)
     {
-        //
+        Film:: create($filmRequest->all());
+        return redirect()->route('films.index')->with('info','Le film a été bien enregisté');
     }
 
     /**
@@ -45,8 +50,18 @@ class FilmController extends Controller
      */
     public function show($id)
     {
-        //
+        $film = Film::find($id);
+        return view('show',compact('film'));
     }
+    
+    
+     // We can also do like this :
+     /*
+     * public function show(Film $film)
+     *{
+     * return view('show', compact('film'));
+     * }
+     */
 
     /**
      * Show the form for editing the specified resource.
@@ -54,9 +69,9 @@ class FilmController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Film $film)
     {
-        //
+        return view('edit',compact('film'));
     }
 
     /**
@@ -66,9 +81,11 @@ class FilmController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(FilmRequest $filmRequest, Film $film)
     {
-        //
+        $film->update($filmRequest->all());
+
+        return redirect()->route('films.index')->with('info','Le film a été bien modifié');
     }
 
     /**
@@ -79,6 +96,11 @@ class FilmController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $film = Film::find($id);
+        $film->delete();
+        // Ou bien
+        //Film::destroy($id);
+
+        return back()->with('info','Le film a été bien supprimé de la base de données');
     }
 }
